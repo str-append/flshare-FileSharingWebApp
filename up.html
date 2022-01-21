@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FLShare-Upload File</title>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+    body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(0deg, #ca006d 0%, #000000 11.76%);
+      font-family: "Poppins", sans-serif;
+      /* font-family:"Basis Grotesque,Helvetica,sans-serif"; */
+      margin: 0;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .head {
+      text-align: center;
+      margin: auto;
+      width: 54%;
+      height: -10%;
+      margin-top: -42px;
+      margin-bottom: -162px;
+    }
+
+    #heading {
+      color: #ffffff;
+      font-weight: 300;
+      font-size: 2.5rem;
+      margin-top: 70px;
+    }
+
+    #subheading {
+      font-weight: 200;
+      font-size: 1.5rem;
+      color: deeppink;
+    }
+
+    #myform {
+      text-align: center;
+      margin: auto;
+      margin-top: 213px;
+      border: 1px dashed white;
+      border-radius: 30px;
+      width: fit-content;
+      padding: 20px 40px;
+      background: black;
+      color: white;
+      box-shadow: 0px 0px 150px #ff0000;
+    }
+
+    form label {
+      margin-top: 30px;
+      border: 2px solid red;
+    }
+
+    .progress {
+      border: 2px solid red;
+      height: 50px;
+      width: fit-content;
+      margin: auto;
+      margin-top: -21px;
+      border-radius: 4px;
+      background: white;
+      display: none;
+    }
+
+    .inprogress {
+      width: 0%;
+      background: #ff33d1;
+      height: 100%;
+      border-radius: 2px;
+      position: relative;
+      top: -16px;
+    }
+
+    #progressbar {
+      width: 60%;
+      height: 12px;
+      display: none;
+      text-align: center;
+      margin: auto;
+      position: relative;
+      top: 49px;
+      z-index: 2;
+    }
+
+    #uploadingStatus {
+      position: relative;
+      top: 13px;
+    }
+
+    b {
+      color: lightcoral;
+    }
+
+    .link {
+      display: none;
+      margin: auto;
+      border: 2px dashed #0432ff;
+      margin-top: 29px;
+      background: yellow;
+      height: 59px;
+      padding: 10px 20px;
+      text-align: center;
+      width: fit-content;
+      height: fit-content;
+
+    }
+
+    #browse {
+      cursor: pointer;
+      color: plum;
+    }
+
+    #browse:hover {
+      transform: scale(1.2);
+    }
+
+    #brow {
+      font-size: 1.3rem;
+    }
+
+
+
+    .email {
+      text-align: center;
+      margin: auto;
+      margin-top: 23px;
+      border: 1px dashed white;
+      border-radius: 20px;
+      background: black;
+      color: white;
+      /* box-shadow: 0px 0px 150px #ff0000; */
+      display: none;
+      width: fit-content;
+      height: fit-content;
+    }
+
+    .email table {
+      margin: auto;
+      text-align: center;
+    }
+
+
+    .toast {
+      display: none;
+      bottom: -200px;
+      color: white;
+      text-align: center;
+      margin: auto;
+      width: fit-content;
+      height: fit-content;
+      background: blue;
+      position: absolute;
+      left: 50%;
+      border: 1px solid wheat;
+      padding: 5px 20px;
+      border-radius: 6px;
+      z-index: 4;
+      box-shadow: -9px 6px 15px 10px rgba(255, 255, 255, 0.13), 9px 3px 15px 5px rgba(255, 255, 255, 0.16), 0px -3px 15px 5px rgba(255, 255, 255, 0.47);
+      transition: transform ease-in-out 3s;
+
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="head">
+      <p id="heading">
+        FLShare <span id="subheading">File Sharing App</span>
+      </p>
+    </div>
+    <form id="myform" method="post" action="/api/files" enctype="multipart/form-data" ondrop="dropHandler(event);"
+      ondragover="dragOverHandler(event);">
+      <p id="brow">
+        Drag And drop file or
+        <span id="browse" onclick="brobtn()">Browse File</span>
+      </p>
+      <input type="file" name="myfile" id="myfile" onchange="upload()" style="display: none" />
+      <!-- name should be same as in server side  (here we used "myfile") -->
+      <br />
+      <p id="size"></p>
+      <!--Name and size will go here-->
+      <progress id="progressbar" value="0" max="100"></progress>
+      <div class="progress">
+        <div class="inprogress">
+          <p id="uploadingStatus" style="position: relative; top: 13px">.</p>
+          <!--  -->
+        </div>
+      </div>
+      <br />
+    </form>
+
+    <div class="link">
+      Link to Download Page: <br />
+      <a id="link1" href="hjh">Link:</a>
+    </div>
+
+    <div class="email">
+      Share Link via Email!
+      <form id="emailSend" onsubmit="sendemail(event)" method="post">
+        <table>
+          <tr>
+            <td>Your Email :</td>
+            <td><input type="email" name="from" id="from" required /></td>
+          </tr>
+          <tr>
+            <td>Receiver's Email:</td>
+            <td><input type="email" name="to" id="to" required /></td>
+          </tr>
+          <td colspan="2">
+            <input type="submit" value="Send" style="cursor:pointer;">
+          </td>
+        </table>
+      </form>
+    </div>
+    <div class="toast">
+      Its a Toast!
+    </div>
+  </div>
+</body>
+
+
+
+
+<script src="./jquery.js"></script>
+<script>
+
+  var hosturl ="https://flsharefilesharingapp.herokuapp.com"; //"http://localhost:3000" ////
+  var fileurl = `${hosturl}/api/files`;
+  var emailurl = `${hosturl}/api/files/send`;
+
+  var a = document.getElementById("link1");
+  console.log(a.innerText);
+  var to;
+  var from;
+  var uuid;
+
+  //on dragging
+  function dragOverHandler(ev) {
+    console.log("File(s) in drop zone");
+    ev.preventDefault();
+  }
+
+  //on dropping
+  function dropHandler(ev) {
+    console.log("File(s) dropped");
+    ev
+      .preventDefault(); // Prevent default behavior (Prevent file from being opened  which is default behaviour of browsers)
+
+    // Use DataTransferItemList interface to access the file(s)
+    const file = ev.dataTransfer.files;
+    // console.log("... file.name = " + file.name);
+
+    var input = document.getElementById("myfile"); //it is the input type="file" element
+    input.files =
+      file; //input is the element having "files" as argument and "file" is the file coming from ev.dataTransfer.files
+    upload(); //it will run the upload method and now since file list is already added;
+    console.log("running in up.html line 171", file);
+    //
+  }
+
+  //it will run onchange in input or on drop (as used there;)
+  function upload() {
+    var files = document.getElementById("myfile"); //input element
+    var file = files.files[0]; //its files.files[0] not files.file[0]    same as input.files;
+    var pb = document.getElementById("progressbar");
+
+    // console.log(file);
+
+    var para = document.getElementById("size");
+    para.innerHTML = `<b>File Name</b>: <i>${
+        file.name
+      }</i> <br> <b>File Size:</b> ${Math.round(file.size / 1000)}KB <br> `;
+
+    var formdata = new FormData();
+    formdata.append("myfile", file, file.name);
+
+    var inporgress = document.getElementsByClassName("inprogress")[
+      0]; //since classname gives an array of elements we need to use [0];
+
+    //xmlhttp request
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        shlink(JSON.parse(xhr.response)); //since response from the server is in json so JSON.parse is used;
+        showtoast("Link Generated!");
+      }
+    };
+
+    //use xhr.onreadystatechange before xhr.open  //
+
+    xhr.upload.onprogress = function (e) {
+      var percentComplete = Math.ceil((e.loaded / e.total) * 100); //for percentage uploaded
+      pb.value = percentComplete; //progress bar
+      inporgress.style.width = `${percentComplete}%`; //div progress bar
+      //
+      pb.style.display = "block";
+      document.getElementsByClassName("progress")[0].style.display = "block";
+      //
+      console.log(percentComplete);
+      var uploadingStatus = document.getElementById("uploadingStatus");
+      uploadingStatus.innerText = `Uploading...${percentComplete}%`;
+      if (percentComplete == 100) {
+        uploadingStatus.innerText = "Uploaded Successfully!";
+      }
+    };
+
+    
+    //"https://flsharefilesharingapp.herokuapp.com/api/files"
+    xhr.open("POST", fileurl,
+      true); //http://localhost:3000/api/files    https://flsharefilesharingapp.herokuapp.com/api/files
+    xhr.send(formdata);
+
+    shlink = ({
+      file: url
+    }) => {
+      console.log(url);
+      console.log("running inside shlink() inside the upload()");
+      var hlink = document.getElementById("link1");
+      hlink.innerText = url;
+      hlink.href = url;
+      var divlink = document.getElementsByClassName("link")[0];
+      divlink.style.display = "block";
+      // var pb = document.getElementById("progressbar");
+
+      //email send
+      document.getElementsByClassName("email")[0].style.display = "block"
+      uuid = url.split("/")[4];
+    };
+  }
+  //click on browse button dynamically
+  function brobtn() {
+    document.getElementById("myfile").click();
+  }
+
+
+  //email sending...
+  function sendemail(e) {
+    e.preventDefault();
+    to = document.getElementById("to").value;
+    from = document.getElementById("from").value;
+    console.log(to, from, uuid);
+    const formdata = {
+      "uuid": uuid,
+      "to": to,
+      "from": from
+    }
+
+    //https://flsharefilesharingapp.herokuapp.com/api/files/send
+    fetch(emailurl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formdata),
+    }).then((res) => res.json()).then((data) => {
+      if (data.sucess) {
+        showtoast("Email Sent Successfully");
+      }
+    })
+  }
+
+  //toast
+  var toastTimer;
+
+  function showtoast(msg) {
+    let toast = document.getElementsByClassName("toast")[0]
+    toast.innerText = msg;
+    toast.style.display = "block";
+    toast.style.transform = "translateY(-300px)";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.style.transform = "translateY(300px)";
+      toast.style.display = "none";
+    }, 2000)
+  }
+</script>
+
+</html>
